@@ -1,11 +1,11 @@
-#%% 
+# %%
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 import cv2
 
-#%%  matplotlib inline
- 
+# %% matplotlib inline
+
 image = cv2.imread('519.jpg')
  
 print('This image is:', type(image), 'with dimensions:', image.shape)
@@ -13,13 +13,17 @@ import math
  
 def grayscale(img):
     """
-    将图像处理为灰度图像，因为使用cv2read所以要用BGR进行转换
+    将图像处理为二值化图像，中间需要灰度图像进行过渡
     
     """
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ret, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+    return binary
     
 def canny(img, low_threshold, high_threshold):#返回image，边缘部分为255，其余为0
- 
+
+    img = cv2.erode(img, cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4)))  # 腐蚀操作，去除边缘干扰
     return cv2.Canny(img, low_threshold, high_threshold)
  
 def gaussian_blur(img, kernel_size):
@@ -81,6 +85,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     print(lines.shape)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
     # draw_lines(line_img, lines)
+    # plt.show(line_img)
     return line_img
  
  
@@ -90,6 +95,7 @@ def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
  
 ini_image = cv2.imread("519.jpg")
 plt.imshow(ini_image)
+# plt.show()
 imshape=ini_image.shape
 gray=grayscale(ini_image)
 #after灰度处理
@@ -151,14 +157,11 @@ max_line_gap=10
 lines=hough_lines(partial, rho, theta, threshold, min_line_len, max_line_gap)
 final=weighted_img(lines,ini_image)
 cv2.imshow('Final', final)
+# plt.show()
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 
-# %%
-cv2.imwrite("result_edges.jpg",edges)
 
-# %%
-cv2.imwrite("result_mat.jpg",vertices)
 
 # %%
